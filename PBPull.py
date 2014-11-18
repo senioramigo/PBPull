@@ -3,7 +3,6 @@ import urllib2
 runP = "true"
 numPix = 0
 fileNum = 0
-#This is the URL of the XML page. Replace it with the URL you need.
 response = urllib2.urlopen("http://s1236.photobucket.com/g.sitemap.001.xml")
 http = response.read()
 
@@ -14,10 +13,10 @@ myOutputFile.writelines(openingLines)
 
 while runP == "true":
     numPix = numPix + 1
-    if numPix >= 200:
+    if numPix >= 400:
         numPix = 0
         fileNum = fileNum + 1
-        myOutputFile.writelines('\n<a href="PBThumb"'+str(fileNum)+'".html">Next Page</a>')
+        myOutputFile.writelines('\n<a href="PBThumb'+str(fileNum)+'.html">Next Page</a>')
         myOutputFile.writelines(closingLines)
         myOutputFile.close()
         myOutputFile = open("PBThumb"+str(fileNum)+".html", "wb")
@@ -28,7 +27,7 @@ while runP == "true":
     http = http[startP:]
     endP = http.find('image:loc') - 2
     hName = http[:endP]
-    PBLink = '\n<a href="'+hName+'"><img src="'+hName+'" style="width:100;height:100"></a>'
+    PBLink = '\n<a href="'+hName+'"><img src="'+hName+'" height="200" width="200"></a>'
     myOutputFile.writelines(PBLink)
     http = http[endP+12:]
 
