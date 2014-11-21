@@ -45,7 +45,7 @@ while http != "":
         http = http[endP+12:]
     #The following logic increments the XML files.
     if place3 == 9:
-        place2 = 0
+        place3 = 0
         if place2 == 9:
             place2 = 0
             place1 = place1 + 1
