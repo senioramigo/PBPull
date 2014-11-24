@@ -12,7 +12,7 @@ import urllib2
 runP = "true"
 moreS = "true"
 moreF = "true"
-numPix = 0
+numPix = 1
 fileNum = 0
 xplace1 = 0
 xplace2 = 0
@@ -30,13 +30,11 @@ myOutputFile = open("PBThumb.html", "wb")
 openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>', '\n<meta http-equiv="content-type" content="text/html; charset=utf-8">', '\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>']
 closingLines =['\n</body>', '\n</html>']
 myOutputFile.writelines(openingLines)
-sPix = 0
+sPix = 1
 #The system will continue running until a blank XML file is found or a server error is encountered. No error handling has been included in this to prevent a perpetual loop/
 while moreS == "true":
     while moreF == "true":
         while runP == "true":
-            sPix = sPix + 1
-            numPix = numPix + 1
             if numPix >= 400:
                 numPix = 0
                 fileNum = fileNum + 1
@@ -51,8 +49,11 @@ while moreS == "true":
             http = http[startP:]
             endP = http.find('image:loc') - 2
             hName = http[:endP]
-            PBLink = '\n<a href="'+hName+'"><img src="'+hName+'" height="200" width="200"></a>'
-            myOutputFile.writelines(PBLink)
+            if hName != "":
+                PBLink = '\n<a href="'+hName+'"><img src="'+hName+'" height="200" width="200"></a>' 
+                myOutputFile.writelines(PBLink)
+                sPix = sPix + 1
+                numPix = numPix + 1
             http = http[endP+12:]
         #The following logic increments the XML files.
         if xplace3 == 9:
