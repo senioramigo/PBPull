@@ -5,6 +5,7 @@
 #   This makes it so it searches the entire server of xml filesfor images.
 #2.1 Added additional logic so the system will read through all the files on each server. Application starts with 001 on s0001
 #   continues through to 999 on s9999
+#2.2 Added condition to allow you to choose between full server crawl and stop when empty XML file is found.
 
 
 import urllib
@@ -24,6 +25,14 @@ sPlace4 = 1
 response = urllib2.urlopen("http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml")
 http = response.read()
 print "Starting at " + "http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml"
+
+###################################################################
+#  Set to 1 to scan all XML files before going to the next server #
+#  Set to 2 to stop scanning when a blank XML file is found       #
+###################################################################
+sScan = 2
+###################################################################
+###################################################################
 
 myOutputFile = open("PBThumb.html", "wb")
 #This writes the file as a recognizable HTML file. Load the files in your web browser to view the thumbs.
@@ -68,14 +77,19 @@ while moreS == "true":
                 xplace2 = xplace2 + 1
         else:
             xplace3 = xplace3 + 1
+        if sScan == 2:
+            if sPix == 0:
+                moreF = "false"
         #This loads the next XML file and lets the user know what file is being loaded.
         response = urllib2.urlopen("http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml")
         http = response.read()
         print sPix
         sPix = 0
-        print "Moving to " + "http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml"
+        if moreF == "true":
+            print "Moving to " + "http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml"
         #Resetting the runP variable so the system will processall the files.
         runP = "true"
+        
     if sPlace4 == 9:
         sPlace4 = 0
         if sPlace3 == 9:
