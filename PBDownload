@@ -1,0 +1,118 @@
+# 1.0 This is essentially the same as the PBPull application, the difference is how the application handles images.
+#     This version downloads the images using formatting from PB's image scheme. Each image is listed similar to:
+#     Http://i1000.photobucket.com/albums/XXX(Album ID)XXX/YYY(Album Folder)YYY/image.jpg
+#     The application formats and saves the image as "XXXXXXYYYYYYimage.jpg" since a lot of images have duplicate names
+#     All formatted image names are checked against the files in the folder and if the file does not yet exist
+#     the application will download it. Some files are not liked by Windows Photo Viewer, you will need to open
+#     them with another image viewer.
+
+import urllib
+import urllib2
+import os
+runP = "true"
+moreS = "true"
+moreF = "true"
+numPix = 1
+fileNum = 0
+xplace1 = 0
+xplace2 = 0
+xplace3 = 1
+sPlace1 = 0
+sPlace2 = 0
+sPlace3 = 0
+sPlace4 = 1
+response = urllib2.urlopen("http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml")
+http = response.read()
+print "Starting at " + "http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml"
+
+###################################################################
+#  Set to 1 to scan all XML files before going to the next server #
+#  Set to 2 to stop scanning when a blank XML file is found       #
+###################################################################
+sScan = 2
+
+
+
+sPix = 1
+#The system will continue running until a blank XML file is found or a server error is encountered. No error handling has been included in this to prevent a perpetual loop/
+while moreS == "true":
+    while moreF == "true":
+        while runP == "true":
+            if http.find('image:loc') <= 0:
+                runP = "false"
+            startP = http.find('image:loc') + 10
+            http = http[startP:]
+            endP = http.find('image:loc') - 2
+            hName = http[:endP]
+            if hName != "":
+                startA = hName.find('albums') 
+                fName = hName[startA+7:]
+                fName = fName.replace('/', '')
+                if hName[:4] == "http":
+                    try:
+                        if os.path.isfile(fName) != True:
+                            imgData = urllib2.urlopen(hName).read()
+                            output = open(fName, 'wb')
+                            output.write(imgData)
+                            output.close()
+                            sPix = sPix + 1
+                            numPix = numPix + 1
+                            print hName
+                    except:
+                        print hName
+                        print "File not found"
+            http = http[endP+12:]
+        #The following logic increments the XML files.
+        if xplace3 == 9:
+            xplace3 = 0
+            if xplace2 == 9:
+                xplace2 = 0
+                if xplace1 == 9:
+                    moreF = "false"
+                else:
+                    xplace1 = xplace1 + 1
+            else:
+                xplace2 = xplace2 + 1
+        else:
+            xplace3 = xplace3 + 1
+        if sScan == 2:
+            if sPix == 0:
+                moreF = "false"
+        #This loads the next XML file and lets the user know what file is being loaded.
+        response = urllib2.urlopen("http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml")
+        http = response.read()
+        print sPix
+        sPix = 0
+        if moreF == "true":
+            print "Moving to " + "http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml"
+        #Resetting the runP variable so the system will processall the files.
+        runP = "true"
+        
+    if sPlace4 == 9:
+        sPlace4 = 0
+        if sPlace3 == 9:
+            sPlace3 = 0
+            if sPlace2 == 9:
+                sPlace2 = 0
+                if sPlace1 == 9:
+                    moreS = "false"
+                else:
+                    sPlace1 = sPlace1 + 1
+            else:
+                sPlace2 = sPlace2 + 1
+        else:
+            sPlace3 = sPlace3 + 1
+    else:
+        sPlace4 = sPlace4 + 1
+    xplace1 = 0
+    xplace2 = 0
+    xplace3 = 1
+    moreF = "true"
+    print "Moving to " + "http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml"
+    response = urllib2.urlopen("http://s"+str(sPlace1)+str(sPlace2)+str(sPlace3)+str(sPlace4)+".photobucket.com/g.sitemap."+str(xplace1)+str(xplace2)+str(xplace3)+".xml")
+    http = response.read()
+    
+
+
+
+print "Done"
