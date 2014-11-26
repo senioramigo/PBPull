@@ -1,0 +1,50 @@
+import urllib
+import urllib2
+import os
+rRepeat = True
+openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
+closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>', '\nLoading your Library','\n</body>', '\n</html>']
+
+while rRepeat == True:
+    response = urllib2.urlopen("http://photobucket.com/recentuploads?page=1")
+    http = response.read()
+    http = http.replace("\/", "/")
+    while http.find("fullsizeUrl") >= 0:
+        http = http[http.find("fullsizeUrl")+14:]
+        end = http.find('","')
+        hName = http[:end]
+        http = http[end+3:]
+        if hName != "":
+            startA = hName.find('albums') 
+            fName = hName[startA+7:]
+            fName = fName.replace('/', '')
+            folderN1 = hName[7:hName.find(".")]
+            folderN2 = hName[hName.find("albums")+7:]
+            folderN2 = folderN2[:folderN2.find('/')]
+            folderN3 = hName[hName.find("albums")+8+len(folderN2):]
+            folderN3 = folderN3[:folderN3.find('/')]
+            fName = folderN1+"--"+folderN3+"--"+fName
+            htmlName = folderN1+"--"+folderN3+".html"
+            LibFull = "http://"+folderN1+".photobucket.com/user/"+folderN3+"/library/?view=recent&page=1"
+            #fPath = "C:/Python27/testP 2/"+folderFull
+            if os.path.isfile(htmlName)== False:
+                myOutputFile = open(htmlName, 'wb')
+                myOutputFile.writelines(openingLines)
+                myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
+                myOutputFile.writelines(closingLines)
+                myOutputFile.close()
+            if hName[:4] == "http":
+                try:
+                    if os.path.isfile(fName) != True:
+                        imgData = urllib2.urlopen(hName).read()
+                        rName = fName.lower()
+                        #output = open(fName, 'wb')
+                        if rName.find("ebay") == -1:
+                            output = open(fName, 'wb')
+                        else:
+                            output = open("C:/Python27/testP 2/ebay/"+fName, 'wb')
+                        output.write(imgData)
+                        output.close()
+                        print fName
+                except:
+                    print "Error"
