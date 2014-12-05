@@ -55,6 +55,7 @@ while rRepeat == True:
                     myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
                     myOutputFile.writelines(closingLines)
                     myOutputFile.close()
+                fNameB = fName
                 fName = os.path.join(fPath, fName)
                 if hName[:4] == "http":
                     try:
@@ -64,13 +65,19 @@ while rRepeat == True:
                             #I added this name filter to help weed out spammy ebay listing pics. This catches a lot but not all.
                             #To avoid accidentally deleting a win, they are sent to a specific Ebay folder)
                             if rName.find("ebay") == -1:
-                                output = open(fName, 'wb')
+                                if rName.find("facebook") == -1:
+                                    output = open(fName, 'wb')
+                                else:
+                                    faceBook = os.path.join(os.getcwd(), "Facebook")
+                                    if os.path.exists(faceBook) == False:
+                                        os.makedirs(faceBook)
+                                    output = open(os.path.join(faceBook, fNameB), 'wb')
                             else:
                                 #This verifies that Ebay does exist in your folders.
                                 eBay = os.path.join(os.getcwd(), "Ebay")
                                 if os.path.exists(eBay) == False:
                                     os.makedirs(eBay)
-                                output = open(os.path.join(eBay, fName), 'wb')
+                                output = open(os.path.join(eBay, fNameB), 'wb')
                             output.write(imgData)
                             output.close()
                             print fName
