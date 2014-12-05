@@ -2,6 +2,7 @@ import urllib
 import urllib2
 import os
 import datetime
+from easygui import *
 
 #This gives our baseline time
 hTime = str(datetime.datetime.utcnow())
@@ -11,7 +12,9 @@ rRepeat = True
 #This is the opening and closing for the link HTML file.
 openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
 closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>', '\nLoading your Library','\n</body>', '\n</html>']
-
+choices = ('Yes', 'No')
+sEbay = buttonbox("Save Ebay Images?","Ebay Images",choices)
+sFacebook = buttonbox("Save Facebook Images?","Facebook Images",choices)
 while rRepeat == True:
     try:
         #This is the URL for the recents page. In theory you can use any page from recents but it doesnt matter that much.
@@ -67,20 +70,30 @@ while rRepeat == True:
                             if rName.find("ebay") == -1:
                                 if rName.find("facebook") == -1:
                                     output = open(fName, 'wb')
+                                    output.write(imgData)
+                                    output.close()
+                                    print fName
                                 else:
-                                    faceBook = os.path.join(os.getcwd(), "Facebook")
-                                    if os.path.exists(faceBook) == False:
-                                        os.makedirs(faceBook)
-                                    output = open(os.path.join(faceBook, fNameB), 'wb')
+                                    print "Facebook"
+                                    if sFacebook == 'Yes':
+                                        faceBook = os.path.join(os.getcwd(), "Facebook")
+                                        if os.path.exists(faceBook) == False:
+                                            os.makedirs(faceBook)
+                                        output = open(os.path.join(faceBook, fNameB), 'wb')
+                                        output.write(imgData)
+                                        output.close()
+                                        print fName
                             else:
                                 #This verifies that Ebay does exist in your folders.
-                                eBay = os.path.join(os.getcwd(), "Ebay")
-                                if os.path.exists(eBay) == False:
-                                    os.makedirs(eBay)
-                                output = open(os.path.join(eBay, fNameB), 'wb')
-                            output.write(imgData)
-                            output.close()
-                            print fName
+                                print "Ebay"
+                                if sEbay == "Yes":
+                                    eBay = os.path.join(os.getcwd(), "Ebay")
+                                    if os.path.exists(eBay) == False:
+                                        os.makedirs(eBay)
+                                    output = open(os.path.join(eBay, fNameB), 'wb')
+                                    output.write(imgData)
+                                    output.close()
+                                    print fName
                     except:
                         #This exception occurs when the file has been found in the folder. This prevents a flooding of duplicate images
                         #or wasted time downloading one you already have.
