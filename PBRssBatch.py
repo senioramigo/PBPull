@@ -2,6 +2,7 @@ import urllib
 import urllib2
 import os
 import datetime
+from easygui import *
 import re
 import json
 
@@ -13,7 +14,7 @@ rRepeat = True
 #This is the opening and closing for the link HTML file.
 jsonFile = os.path.join(os.getcwd(), "saved feeds.txt")
 if os.path.isfile(jsonFile) == False:
-    newRssName = raw_input("Bucket Name?")
+    newRssName = raw_input("Bucket Name? ")
     hold = {u'feeds':[
         {u'link': u'http://feed856.photobucket.com/albums/f1348/'+newRssName+'/account.rss', u'bucketName':u''+newRssName+''}
     ]}
@@ -36,27 +37,37 @@ if newRss[0] == "Y" or newRss[0] == "y":
     while repeat == "Yes":
         newRssName = raw_input("Bucket Name: ")
         if newRssName[0] == "n" or newRssName[0] == "N":
-            repeat = "No"
-        newRssItem = {u'link': u'http://feed856.photobucket.com/albums/f1348/'+newRssName+'/account.rss', u'bucketName':u''+newRssName+''}
-        jSon['feeds'].append(newRssItem)
-        moreRss = raw_input("More? ")
-        if moreRss[0] == "N" or moreRss[0] == "n":
-            repeat = "No"
-            jsonRead = open(jsonFile, 'w')
-            hold = jSon['feeds']
-            jsonRead.write('{"feeds":[')
-            nfNum = 0
-            for i in hold:
-                wrHold = str(hold[nfNum])
-                wrHold = wrHold.replace(" ", "")
-                wrHold = wrHold.replace("u'", '"')
-                wrHold = wrHold.replace("'", '"')
-                if nfNum < len(hold) and nfNum != 0:
-                    jsonRead.write(",")
-                jsonRead.write("\n    "+wrHold)
-                nfNum = nfNum+1
-            jsonRead.write('\n]}')
-            jsonRead.close()
+            if len(newRssName) >= 2:
+                repeat = "No"
+        nfNum = 0
+        hold = jSon['feeds']
+        rssValid = True
+        for i in hold:
+            if hold[nfNum]['bucketName'] == newRssName:
+                rssValid = False
+        if rssValid == True:
+            newRssItem = {u'link': u'http://feed856.photobucket.com/albums/f1348/'+newRssName+'/account.rss', u'bucketName':u''+newRssName+''}
+            jSon['feeds'].append(newRssItem)
+            moreRss = raw_input("More? ")
+            if moreRss[0] == "N" or moreRss[0] == "n":
+                repeat = "No"
+                jsonRead = open(jsonFile, 'w')
+                hold = jSon['feeds']
+                jsonRead.write('{"feeds":[')
+                nfNum = 0
+                for i in hold:
+                    wrHold = str(hold[nfNum])
+                    wrHold = wrHold.replace(" ", "")
+                    wrHold = wrHold.replace("u'", '"')
+                    wrHold = wrHold.replace("'", '"')
+                    if nfNum < len(hold) and nfNum != 0:
+                        jsonRead.write(",")
+                    jsonRead.write("\n    "+wrHold)
+                    nfNum = nfNum+1
+                jsonRead.write('\n]}')
+                jsonRead.close()
+        else:
+            print "Bucket already exists."
 
 hold = jSon['feeds']
 while rRepeat == True:
@@ -98,9 +109,9 @@ while rRepeat == True:
                                 output.write(imgData)
                                 output.close()
                                 print fName
-                            #else:
-                                #print "Duplicate Image"
-                                #print fName
+                            else:
+                                print "Duplicate Image"
+                                print fName
                         except:
                             #This exception occurs when the file has been found in the folder. This prevents a flooding of duplicate images
                             #or wasted time downloading one you already have.
