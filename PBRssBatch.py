@@ -37,7 +37,7 @@ if newRss[0] == "Y" or newRss[0] == "y":
     while repeat == "Yes":
         newRssName = raw_input("Bucket Name: ")
         if newRssName[0] == "n" or newRssName[0] == "N":
-            if len(newRssName) >= 2:
+            if len(newRssName) <= 2:
                 repeat = "No"
         nfNum = 0
         hold = jSon['feeds']
@@ -45,6 +45,7 @@ if newRss[0] == "Y" or newRss[0] == "y":
         for i in hold:
             if hold[nfNum]['bucketName'] == newRssName:
                 rssValid = False
+            nfNum = nfNum +1
         if rssValid == True:
             newRssItem = {u'link': u'http://feed856.photobucket.com/albums/f1348/'+newRssName+'/account.rss', u'bucketName':u''+newRssName+''}
             jSon['feeds'].append(newRssItem)
