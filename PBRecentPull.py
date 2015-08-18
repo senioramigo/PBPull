@@ -2,6 +2,7 @@ import urllib
 import urllib2
 import os
 import datetime
+import re
 
 #This gives our baseline time
 hTime = str(datetime.datetime.utcnow())
@@ -11,6 +12,7 @@ rRepeat = True
 #This is the opening and closing for the link HTML file.
 openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
 closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>', '\nLoading your Library','\n</body>', '\n</html>']
+
 
 while rRepeat == True:
     try:
@@ -38,6 +40,7 @@ while rRepeat == True:
                 folderN3 = folderN3[:folderN3.find('/')]
                 fName = folderN1+"--"+folderN3+"--"+fName
                 htmlName = folderN1+"--"+folderN3+".html"
+                
                 LibFull = "http://"+folderN1+".photobucket.com/user/"+folderN3+"/library/?view=recent&page=1"
                 #This checks the current time to verify if we need to move over to a different folder
                 nTime = str(datetime.datetime.now())
@@ -47,16 +50,9 @@ while rRepeat == True:
                     fPath = os.path.join(os.getcwd(), hTime)
                     if os.path.exists(fPath) == False:
                         os.makedirs(fPath)
-                htmlName = os.path.join(fPath, htmlName)
-                #This creates the link HTML file
-                if os.path.isfile(htmlName)== False:
-                    myOutputFile = open(htmlName, 'wb')
-                    myOutputFile.writelines(openingLines)
-                    myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
-                    myOutputFile.writelines(closingLines)
-                    myOutputFile.close()
                 fNameB = fName
                 fName = os.path.join(fPath, fName)
+                
                 if hName[:4] == "http":
                     try:
                         if os.path.isfile(fName) != True:
@@ -66,7 +62,57 @@ while rRepeat == True:
                             #To avoid accidentally deleting a win, they are sent to a specific Ebay folder)
                             if rName.find("ebay") == -1:
                                 if rName.find("facebook") == -1:
-                                    output = open(fName, 'wb')
+                                    if rName.find("snapsave") == -1:
+                                        if rName.find("screenshot") == -1:
+                                            if rName.find("snapschat") == -1:
+                                                output = open(fName, 'wb')
+                                                htmlName = os.path.join(fPath, htmlName)
+                                                #This creates the link HTML file
+                                                if os.path.isfile(htmlName)== False:
+                                                    myOutputFile = open(htmlName, 'wb')
+                                                    myOutputFile.writelines(openingLines)
+                                                    myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
+                                                    myOutputFile.writelines(closingLines)
+                                                    myOutputFile.close()
+                                            else:
+                                                snapChat = os.path.join(os.getcwd(), "SnapChat")
+                                                if os.path.exists(snapChat) == False:
+                                                    os.makedirs(snapChat)
+                                                output = open(os.path.join(snapChat, fNameB), 'wb')
+                                                htmlName = os.path.join(snapChat, htmlName)
+                                                #This creates the link HTML file
+                                                if os.path.isfile(htmlName)== False:
+                                                    myOutputFile = open(htmlName, 'wb')
+                                                    myOutputFile.writelines(openingLines)
+                                                    myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
+                                                    myOutputFile.writelines(closingLines)
+                                                    myOutputFile.close()
+                                        else:
+                                            screenShot = os.path.join(os.getcwd(), "Screenshot")
+                                            if os.path.exists(screenShot) == False:
+                                                os.makedirs(screenShot)
+                                            output = open(os.path.join(screenShot, fNameB), 'wb')
+                                            htmlName = os.path.join(screenShot, htmlName)
+                                            #This creates the link HTML file
+                                            if os.path.isfile(htmlName)== False:
+                                                myOutputFile = open(htmlName, 'wb')
+                                                myOutputFile.writelines(openingLines)
+                                                myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
+                                                myOutputFile.writelines(closingLines)
+                                                myOutputFile.close()
+                                    else:
+                                        snapSave = os.path.join(os.getcwd(), "SnapSave")
+                                        if os.path.exists(snapSave) == False:
+                                            os.makedirs(snapSave)
+                                        output = open(os.path.join(snapSave, fNameB), 'wb')
+                                        htmlName = os.path.join(snapSave, htmlName)
+                                        #This creates the link HTML file
+                                        if os.path.isfile(htmlName)== False:
+                                            myOutputFile = open(htmlName, 'wb')
+                                            myOutputFile.writelines(openingLines)
+                                            myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+LibFull+'">')
+                                            myOutputFile.writelines(closingLines)
+                                            myOutputFile.close()
                                 else:
                                     faceBook = os.path.join(os.getcwd(), "Facebook")
                                     if os.path.exists(faceBook) == False:
