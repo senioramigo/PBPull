@@ -10,6 +10,7 @@ hTime = hTime[:hTime.find(':')]
 rRepeat = True
 #This is the opening and closing for the link HTML file.
 
+
 def mHtmLink(HtmLink):
     openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
     closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>', '\nLoading your Library','\n</body>', '\n</html>']
@@ -46,6 +47,7 @@ while rRepeat == True:
                 folderN3 = folderN3[:folderN3.find('/')]
                 fName = folderN1+"--"+folderN3+"--"+fName
                 htmlName = folderN1+"--"+folderN3+".html"
+                
                 LibFull = "http://"+folderN1+".photobucket.com/user/"+folderN3+"/library/?view=recent&page=1"
                 #This checks the current time to verify if we need to move over to a different folder
                 nTime = str(datetime.datetime.now())
@@ -57,6 +59,7 @@ while rRepeat == True:
                         os.makedirs(fPath)
                 fNameB = fName
                 fName = os.path.join(fPath, fName)
+                
                 if hName[:4] == "http":
                     try:
                         if os.path.isfile(fName) != True:
@@ -64,7 +67,14 @@ while rRepeat == True:
                             rName = fName.lower()
                             #I added this name filter to help weed out spammy ebay listing pics. This catches a lot but not all.
                             #To avoid accidentally deleting a win, they are sent to a specific Ebay folder)
-                            if rName.find("ebay") == -1:
+                            if len(imgData) == 7883:
+                                tos = os.path.join(os.getcwd(), "TOS")
+                                if os.path.exists(tos) == False:
+                                    os.makedirs(tos)
+                                output = open(os.path.join(tos, fNameB), 'wb')
+                                htmlName = os.path.join(tos, htmlName)
+                                mHtmLink(htmlName)
+                            elif rName.find("ebay") == -1:
                                 if rName.find("facebook") == -1:
                                     if rName.find("snapsave") == -1:
                                         if rName.find("screenshot") == -1:
