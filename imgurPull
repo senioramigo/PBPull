@@ -1,0 +1,87 @@
+import urllib
+import urllib2
+import os
+import sys
+from easygui import *
+import re
+import zipfile
+
+fPath = "C:\Backup\USB\pics"
+
+url = enterbox("What is the url")
+url.replace(" ", "")
+if len(re.findall("imgur", url)) == 1:
+    if url[:7] != "http://":
+        url = "http://"+url
+    response = urllib2.urlopen(url)
+    html = response.read()
+    urlS = re.findall('<a href="//(.*?)" target="_blank">', html)
+    for i in urlS:
+        print i
+        fName = i[12:]
+        print fName
+        rClear = 0
+        while rClear == 0:
+            if fName [len(fName)-1:] != "g":
+                fName = fName [:len(fName)-1]
+            else:
+                rClear = 1
+            if len(fName) == 0:
+                rClear = 2
+        if rClear == 1:
+            fName = os.path.join(fPath, fName)
+            imgA = "http://"+i
+            print imgA
+            html = urllib2.urlopen(imgA)
+            imgData = html.read()
+            output = open(fName, 'wb')
+            output.write(imgData)
+            output.close()
+if len(re.findall("eroshare", url)) == 1:
+    response = urllib2.urlopen(url)
+    htmlM = response.read()
+    urlS = re.findall('<img src="//(.*?)" width=', htmlM)
+    for i in urlS:
+        print i
+        fName = i[15:]
+        print fName
+        rClear = 0
+        while rClear == 0:
+            if fName [len(fName)-1:] != "g":
+                fName = fName [:len(fName)-1]
+            else:
+                rClear = 1
+            if len(fName) == 0:
+                rClear = 2
+        if rClear == 1:
+            fName = os.path.join(fPath, fName)
+            imgA = "http://"+i
+            print imgA
+            html = urllib2.urlopen(imgA)
+            imgData = html.read()
+            output = open(fName, 'wb')
+            output.write(imgData)
+            output.close()
+    urlV = re.findall('src="//v(.*?)" type=', htmlM)
+    for i in urlV:
+        i = "v" + i
+        print i
+        fName = i[15:]
+        print fName
+        rClear = 0
+        while rClear == 0:
+            if fName [len(fName)-1:] != "g":
+                fName = fName [:len(fName)-1]
+            else:
+                rClear = 1
+            if len(fName) == 0:
+                rClear = 2
+        if rClear == 1:
+            fName = os.path.join(fPath, fName)
+            imgA = "http://"+i
+            print imgA
+            html = urllib2.urlopen(imgA)
+            imgData = html.read()
+            output = open(fName, 'wb')
+            output.write(imgData)
+            output.close()
