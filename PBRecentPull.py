@@ -7,12 +7,13 @@ import sys
 
 
 class Photopull():
-    def __init__(self):
+    def __init__(self, update_comm, parent_running):
 
         #This is the opening and closing for the link HTML file.
         self.running = False
         self.last_file = None
-
+        self.update_parent = update_comm
+        self.parent_running = parent_running
 
     def mHtmLink(self, HtmLink):
         openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
@@ -109,10 +110,12 @@ class Photopull():
                                                 image_location = fName
                                                 html_name = os.path.join(fPath, htmlName)
                                                 # print fName
-
                                             with open(image_location, 'wb') as output:
                                                 output.write(imgData)
                                             self.mHtmLink(html_name)
+                                            if self.parent_running():
+                                                print self.LibFull
+                                                self.update_parent(image_location, self.LibFull)
 
 
                                 except:
