@@ -5,11 +5,11 @@ import datetime
 import sys
 
 
-
 class Photopull():
+
     def __init__(self, update_comm, parent_running):
 
-        #This is the opening and closing for the link HTML file.
+        # This is the opening and closing for the link HTML file.
         self.running = False
         self.last_file = None
         self.update_parent = update_comm
@@ -18,118 +18,128 @@ class Photopull():
         self.working_path = os.path.join(os.getcwd(), 'Working')
         self.completed_path = os.path.join(os.getcwd(), 'Completed')
 
+        self.start_time = datetime.datetime.now()
+        self.move_files(first_run=True)
+
         if not os.path.exists(self.completed_path):
             os.mkdir(self.completed_path)
         if not os.path.exists(self.working_path):
             os.mkdir(self.working_path)
 
     def mHtmLink(self, HtmLink):
-        openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
-        closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>', '\nLoading your Library','\n</body>', '\n</html>']
-        if os.path.isfile(HtmLink)== False:
+        openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"',
+                        '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
+        closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>',
+                        '\n', '\n<body>', '\nLoading your Library', '\n</body>', '\n</html>']
+        if os.path.isfile(HtmLink) == False:
             myOutputFile = open(HtmLink, 'wb')
             myOutputFile.writelines(openingLines)
-            myOutputFile.writelines('\n<meta HTTP-EQUIV="REFRESH" content="0; url='+self.LibFull+'">')
+            myOutputFile.writelines(
+                '\n<meta HTTP-EQUIV="REFRESH" content="0; url=' + self.bucket_link + '">')
             myOutputFile.writelines(closingLines)
             myOutputFile.close()
 
     def stop(self):
         self.running = False
 
+    def move_files(self, timeout=60, first_run=False):
+     # This checks the current time to verify if we need to
+        # move over to a different folder
+        now = datetime.datetime.now()
+        if self.start_time + \
+                datetime.timedelta(minutes=timeout) < now or first_run:
+            self.start_time = now
+            print "Moving files"
+
+            # This will move the files from the working directory to the completed directory.
+            # Duplicates throw an exception, and will be
+            # deleted.
+            for file in os.listdir(self.working_path):
+                try:
+                    os.rename(
+                        os.path.join(self.working_path, file), os.path.join(self.completed_path, file))
+                except:
+                    os.remove(
+                        os.path.join(self.working_path, file))
+
     def run(self):
         self.running = True
-        hTime = str(datetime.datetime.utcnow())
-        hTime = hTime[:hTime.find(':')]
-        rRepeat = True
 
         while self.running:
-            # try:
-                    response = urllib2.urlopen("http://photobucket.com/recentuploads?page=1")
-                    http = response.read()
-                    http = http.replace("\/", "/")
-                    #This segment searches through the HTML we have read from Photobucket looking for images. If it doesnt find any more then it will
-                    #reread the page.
-                    while http.find("fullsizeUrl") >= 0 and self.running:
-                        http = http[http.find("fullsizeUrl")+14:]
-                        end = http.find('","')
-                        hName = http[:end]
-                        http = http[end+3:]
-                        if hName != "":
-                            #This starts the parsing of the image url so we can give it an origional descriptive name so we know if a duplicate
-                            #has been found.
-                            startA = hName.find('albums')
-                            fName = hName[startA+7:]
-                            fName = fName.replace('/', '')
-                            folderN1 = hName[7:hName.find(".")]
-                            folderN2 = hName[hName.find("albums")+7:]
-                            folderN2 = folderN2[:folderN2.find('/')]
-                            folderN3 = hName[hName.find("albums")+8+len(folderN2):]
-                            folderN3 = folderN3[:folderN3.find('/')]
-                            fName = folderN1+"--"+folderN3+"--"+fName
-                            htmlName = folderN1+"--"+folderN3+".html"
+            try:
+                response = urllib2.urlopen(
+                    "http://photobucket.com/recentuploads?page=1")
+                http = response.read().replace("\/", "/")
+                # This segment searches through the HTML we have read from Photobucket looking for images. If it doesnt find any more then it will
+                # reread the page.
+                while http.find("fullsizeUrl") >= 0 and self.running:
+                    http = http[http.find("fullsizeUrl") + 14:]
+                    end = http.find('","')
+                    image_url = http[:end]
+                    http = http[end + 3:]
+                    if image_url != "":
+                        # This starts the parsing of the image url so we can give it an origional descriptive name so we know if a duplicate
+                        # has been found.
+                        file_name = image_url[image_url.find('albums') + 7:].replace('/', '')
+                        fold = []
+                        fold.append(image_url[7:image_url.find(".")])
+                        fold.append(image_url[image_url.find("albums") + 7:])
+                        fold[1] = fold[1][:fold[1].find('/')]
+                        fold.append(
+                            image_url[image_url.find("albums") + 8 + len(fold[1]):])
+                        fold[2] = fold[2][:fold[2].find('/')]
+                        file_name = fold[0] + "--" + fold[2] + "--" + file_name
+                        htmlName = fold[0] + "--" + fold[2] + ".html"
 
-                            self.LibFull = "http://"+folderN1+".photobucket.com/user/"+folderN3+"/library/?view=recent&page=1"
-                            #This checks the current time to verify if we need to move over to a different folder
-                            nTime = str(datetime.datetime.now())
-                            nTime = nTime[:nTime.find(':')]
-                            if nTime != hTime:
-                                hTime = nTime
-                                try:
-                                    for file in os.listdir(self.working_path):
-                                        os.rename(os.path.join(self.working_path, file), os.path.join(self.completed_path, file))
-                                except:
-                                    pass
-                            fNameB = fName
-                            fName = os.path.join(self.working_path, fName)
+                        self.bucket_link = "http://" + \
+                            fold[0] + ".photobucket.com/user/" + \
+                            fold[2] + "/library/?view=recent&page=1"
+                        self.move_files(timeout=20)
+                        file_path = os.path.join(self.working_path, file_name)
+                        filters = [
+                            'ebay', 'facebook', 'snapesave', 'screenshot', 'snapchat']
+                        if image_url[:4] == "http":
+                            if not os.path.isfile(file_path):
+                                image = urllib2.urlopen(image_url).read()
+                                image_location = None
+                                html_name = None
+                                for spam in filters:
+                                    if spam in file_path.lower():
+                                        spam_folder = os.path.join(
+                                            os.getcwd(), spam)
+                                        if not os.path.exists(spam_folder):
+                                            os.makedirs(spam_folder)
+                                        image_location = os.path.join(
+                                            spam_folder, file_name)
+                                        html_name = os.path.join(
+                                            spam_folder, htmlName)
 
-                            filters = ['ebay', 'facebook', 'snapesave', 'screenshot', 'snapchat']
-                            if hName[:4] == "http":
-                                # try:
-                                    if not os.path.isfile(fName):
-                                        imgData = urllib2.urlopen(hName).read()
-                                        rName = fName.lower()
-                                        #I added this name filter to help weed out spammy ebay listing pics. This catches a lot but not all.
-                                        #To avoid accidentally deleting a win, they are sent to a specific Ebay folder)
-
-                                        image_location = None
-                                        html_name = None
-                                        for spam in filters:
-                                            if spam in rName:
-                                                spam_folder = os.path.join(os.getcwd(), spam)
-                                                if not os.path.exists(spam_folder):
-                                                    os.makedirs(spam_folder)
-                                                image_location = os.path.join(spam_folder, fNameB)
-                                                html_name = os.path.join(spam_folder, htmlName)
-                                                # print spam + ": " + fName
-
-                                            elif len(imgData) == 7883:
-                                                tos = os.path.join(os.getcwd(), "TOS")
-                                                if os.path.exists(tos) == False:
-                                                    os.makedirs(tos)
-                                                image_location = os.path.join(tos, fNameB)
-                                                html_name = os.path.join(tos, htmlName)
-                                                # print "TOS: "+ fName
-                                            else:
-                                                image_location = os.path.join(self.working_path, fNameB)
-                                                html_name = os.path.join(self.working_path, htmlName)
-                                                # print fName
-                                            with open(image_location, 'wb') as output:
-                                                output.write(imgData)
-                                            self.mHtmLink(html_name)
-                                            if self.parent_running():
-                                                print self.LibFull
-                                                self.update_parent(image_location, self.LibFull)
-
-
-                                # except:
-                                    #This exception occurs when the file has been found in the folder. This prevents a flooding of duplicate images
-                                    #or wasted time downloading one you already have.
-                                    # print "Error"
-            # except:
-                    #This is a simple restart in case of any issues. I have come in to find it not running and when checking the log I got errors
-                    #from HTTP access to simple timeout errors. This catches them all and restarts the application.
-                    # print "Fatal Error, Restarting"
-
+                                    elif len(image) == 7883:
+                                        tos = os.path.join(os.getcwd(), "TOS")
+                                        if os.path.exists(tos) == False:
+                                            os.makedirs(tos)
+                                        image_location = os.path.join(
+                                            tos, file_name)
+                                        html_name = os.path.join(tos, htmlName)
+                                    else:
+                                        image_location = os.path.join(
+                                            self.working_path, file_name)
+                                        html_name = os.path.join(
+                                            self.working_path, htmlName)
+                                    try:
+                                        with open(image_location, 'wb') as output:
+                                            output.write(image)
+                                        self.mHtmLink(html_name)
+                                        if self.parent_running():
+                                            self.update_parent(
+                                                image_location, self.bucket_link)
+                                    except IOError:
+                                        print "IO Error"
+            except urllib2.HTTPError:
+                # This is a simple restart in case of any issues. I have come in to find it not running and when checking the log I got errors
+                # from HTTP access to simple timeout errors. This catches them
+                # all and restarts the application.
+                print "404 Error encountered."
 
 
 if __name__ == '__main__':
