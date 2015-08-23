@@ -15,6 +15,14 @@ class Photopull():
         self.update_parent = update_comm
         self.parent_running = parent_running
 
+        self.working_path = os.path.join(os.getcwd(), 'Working')
+        self.completed_path = os.path.join(os.getcwd(), 'Completed')
+
+        if not os.path.exists(self.completed_path):
+            os.mkdir(self.completed_path)
+        if not os.path.exists(self.working_path):
+            os.mkdir(self.working_path)
+
     def mHtmLink(self, HtmLink):
         openingLines = ['\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"', '\n        "http://www.w3.org/TR/html4/loose.dtd">', '\n<html lang="en">', '\n', '\n<head>']
         closingLines = ['\n<title>Photobucket Thumbs</title>', '\n</head>', '\n', '\n<body>', '\nLoading your Library','\n</body>', '\n</html>']
@@ -30,13 +38,12 @@ class Photopull():
 
     def run(self):
         self.running = True
-        #This gives our baseline time
         hTime = str(datetime.datetime.utcnow())
         hTime = hTime[:hTime.find(':')]
-        #This value currently never changes so that it can run indefinitly.
         rRepeat = True
+
         while self.running:
-            try:
+            # try:
                     response = urllib2.urlopen("http://photobucket.com/recentuploads?page=1")
                     http = response.read()
                     http = http.replace("\/", "/")
@@ -67,21 +74,17 @@ class Photopull():
                             nTime = nTime[:nTime.find(':')]
                             if nTime != hTime:
                                 hTime = nTime
-                                fPath = os.path.join(os.getcwd(), hTime)
-                                if os.path.exists(fPath) == False:
-                                    os.makedirs(fPath)
+                                try:
+                                    for file in os.listdir(self.working_path):
+                                        os.rename(os.path.join(self.working_path, file), os.path.join(self.completed_path, file))
+                                except:
+                                    pass
                             fNameB = fName
-                            fName = os.path.join(fPath, fName)
+                            fName = os.path.join(self.working_path, fName)
 
                             filters = ['ebay', 'facebook', 'snapesave', 'screenshot', 'snapchat']
-                            # for folder in filters:
-                            #     print os.path.join(os.getcwd(), folder)
-                            #     if not os.path.exists(os.path.join(os.getcwd(), folder)):
-                            #         os.makedirs(os.path.join(os.getcwd(), folder))
-                            #         print os.path.join(os.getcwd(), folder)
-                            # sys.exit(1)
                             if hName[:4] == "http":
-                                try:
+                                # try:
                                     if not os.path.isfile(fName):
                                         imgData = urllib2.urlopen(hName).read()
                                         rName = fName.lower()
@@ -107,8 +110,8 @@ class Photopull():
                                                 html_name = os.path.join(tos, htmlName)
                                                 # print "TOS: "+ fName
                                             else:
-                                                image_location = fName
-                                                html_name = os.path.join(fPath, htmlName)
+                                                image_location = os.path.join(self.working_path, fNameB)
+                                                html_name = os.path.join(self.working_path, htmlName)
                                                 # print fName
                                             with open(image_location, 'wb') as output:
                                                 output.write(imgData)
@@ -118,14 +121,14 @@ class Photopull():
                                                 self.update_parent(image_location, self.LibFull)
 
 
-                                except:
+                                # except:
                                     #This exception occurs when the file has been found in the folder. This prevents a flooding of duplicate images
                                     #or wasted time downloading one you already have.
-                                    print "Error"
-            except:
+                                    # print "Error"
+            # except:
                     #This is a simple restart in case of any issues. I have come in to find it not running and when checking the log I got errors
                     #from HTTP access to simple timeout errors. This catches them all and restarts the application.
-                    print "Fatal Error, Restarting"
+                    # print "Fatal Error, Restarting"
 
 
 
